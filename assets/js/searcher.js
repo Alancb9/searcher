@@ -70,6 +70,7 @@ let recorrerDatos = (menu) => {
 
 };
 
+// cargar datos en la plantilla de manera asincrona
 let cargarDatosPlantilla = async () => {
 
     try {
@@ -80,8 +81,9 @@ let cargarDatosPlantilla = async () => {
 
             recorrerDatos(item);
 
+        };
 
-        }
+
 
     } catch (error) {
 
@@ -91,36 +93,136 @@ let cargarDatosPlantilla = async () => {
 
 };
 
+//Buscar contenido verificando algunas posibilidades que pueda realizar el usuario como el enter y el click
 let buscarContenido = () => {
 
     let boton = document.getElementById("filter");
-    boton.addEventListener("click", () => {
+    let input = document.getElementById("text");
+
+    let buscar = () => {
 
         let buscarTexto = document.getElementById("text").value.toLowerCase().trim();
-        let productos = document.querySelectorAll(".card.card-blog.card-plain");
+        let productos = document.querySelectorAll(".col-xl-3.col-md-6.mb-xl-0.mb-4.mt-4 .card.card-blog.card-plain");
 
-        productos.forEach((producto) => {
+        let nuevoContenedor = document.getElementById("seccionPlatos");
+        nuevoContenedor.innerHTML = "";
 
-            let nombre = producto.querySelector("h5").textContent.toLowerCase().trim();
-            let tipo = producto.querySelector("p.text-sm").textContent.toLowerCase().trim();
+        let resultadosEncontrados = false;
 
-            if (nombre.includes(buscarTexto) || tipo.includes(buscarTexto)) {
+        if (productos.length !== 12){
 
-                producto.style.display = "block";
+            let cargardatos2 = async () => {
 
-            } else {
+                try {
+                    
+                    await cargarDatosPlantilla();
 
-                producto.style.display = "none";
+                    let productos = document.querySelectorAll(".col-xl-3.col-md-6.mb-xl-0.mb-4.mt-4 .card.card-blog.card-plain");
 
-            }
+                    let nuevoContenedor = document.getElementById("seccionPlatos");
+                    nuevoContenedor.innerHTML = "";
+                    // let resultadosEncontrados = false;
 
-        });
+                    if (buscarTexto === "") {
+                        productos.forEach((producto) => {
+                            let productoNuevo = document.createElement("div");
+                            productoNuevo.innerHTML = producto.innerHTML;
+                            productoNuevo.classList.add("col-xl-3", "col-md-6", "mb-xl-0", "mb-4", "mt-4");
+                            nuevoContenedor.appendChild(productoNuevo);
+                        });
+                    } else {
+                        productos.forEach((producto) => {
+            
+                            let nombre = producto.querySelector("h5").textContent.toLowerCase().trim();
+                            let tipo = producto.querySelector("p.text-sm").textContent.toLowerCase().trim();
+                            
+                            if (nombre.includes(buscarTexto) || tipo.includes(buscarTexto)) {
+                                let productoNuevo = document.createElement("div");
+                                productoNuevo.innerHTML = producto.innerHTML;
+                                productoNuevo.classList.add("col-xl-3", "col-md-6", "mb-xl-0", "mb-4", "mt-4");
+                                nuevoContenedor.appendChild(productoNuevo);
+                                resultadosEncontrados = true;
+                            } 
+            
+                        });
 
+                        return resultadosEncontrados
+
+                    }
+                } catch (error) {
+                    
+                    console.error(error);
+
+
+
+                }
+
+            };
+            resultadosEncontrados = cargardatos2();
+            
+            
+
+        };
+
+        if (buscarTexto === "") {
+
+            productos.forEach((producto) => {
+                let productoNuevo = document.createElement("div");
+                productoNuevo.innerHTML = producto.innerHTML;
+                productoNuevo.classList.add("col-xl-3", "col-md-6", "mb-xl-0", "mb-4", "mt-4");
+                nuevoContenedor.appendChild(productoNuevo);
+        
+            });
+
+        } else {
+            productos.forEach((producto) => {
+
+                let nombre = producto.querySelector("h5").textContent.toLowerCase().trim();
+                let tipo = producto.querySelector("p.text-sm").textContent.toLowerCase().trim();
+                
+                if (nombre.includes(buscarTexto) || tipo.includes(buscarTexto)) {
+
+                    let productoNuevo = document.createElement("div");
+                    productoNuevo.innerHTML = producto.innerHTML;
+                    productoNuevo.classList.add("col-xl-3", "col-md-6", "mb-xl-0", "mb-4", "mt-4");
+                    nuevoContenedor.appendChild(productoNuevo);
+                    resultadosEncontrados = true;
+
+                } 
+
+            });
+        }
+
+        //Mostrar mensaje en caso de que el usuario quiera buscar contenido inexistente en nuestro sistema
+        if (!resultadosEncontrados) {
+            let mensaje = document.createElement("p");
+            mensaje.textContent = "No se encontraron datos";
+            nuevoContenedor.appendChild(mensaje);
+            nuevoContenedor.style.textAlign = "center";
+
+        }
+
+    };
+
+    boton.addEventListener("click", () => {
+
+        buscar();
 
     });
 
-};
+    input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
 
+            buscar();
+
+        }
+    });
+
+
+
+    
+
+};
 
 document.addEventListener("DOMContentLoaded", function () {
 
